@@ -1,11 +1,11 @@
-## ----setup, echo = FALSE, message = FALSE--------------------------------
+## ----setup, echo = FALSE, message = FALSE-------------------------------------
 library(hedgehog)
 set.seed(1014)
 snoc <- function (xs, x) {
   unlist ( list ( xs, list( x)) , recursive = F )
 }
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 refs <- setRefClass("Refs",
     fields = list(
         num = "numeric"
@@ -34,10 +34,10 @@ refs <- setRefClass("Refs",
 )
 grefs <- refs$new()
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 list(key = 2, val = 0)
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 new  <- command ( "New",
     generator = function( state ) list()
   , execute   = function() grefs$newRef()
@@ -45,10 +45,10 @@ new  <- command ( "New",
       snoc( state, list(key = output, val = 0))
   )
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 initialmodel <- list()
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 test_that( "Registry State Machine Model",
   forall( gen.actions ( initialmodel, list(new) ), function( actions ) {
     grefs$reset()
@@ -56,7 +56,7 @@ test_that( "Registry State Machine Model",
   })
 )
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 read <- command ( "Read",
     generator = function( state ) {
       if ( length(state) == 0 )
@@ -73,7 +73,7 @@ read <- command ( "Read",
     }
   )
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 write <- command ( "Write",
     generator = function( state ) {
       if ( length(state) == 0 )
@@ -91,7 +91,7 @@ write <- command ( "Write",
       )
   )
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 test_that( "Registry State Machine Model",
   forall( gen.actions ( initialmodel, list(new, read, write) ), function( actions ) {
     grefs$reset()
@@ -99,7 +99,7 @@ test_that( "Registry State Machine Model",
   })
 )
 
-## ----echo = T, message = F-----------------------------------------------
+## ----echo = T, message = F----------------------------------------------------
 writeIncorrect <- command ( "Write (Broken)",
     generator = function( state ) {
       if ( length(state) == 0 )
@@ -117,11 +117,13 @@ writeIncorrect <- command ( "Write (Broken)",
       )
   )
 
-## ----echo = T, message = F, error=TRUE-----------------------------------
+## ----echo = T, message = F, error=TRUE----------------------------------------
+try({
 test_that( "Registry State Machine Model",
   forall( gen.actions ( initialmodel, list(new, read, write, writeIncorrect) ), function( actions ) {
     grefs$reset()
     expect_sequential( initialmodel, actions )
   })
 )
+})
 
